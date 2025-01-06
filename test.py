@@ -1,15 +1,14 @@
-
 # Libraries
 import joblib
 import numpy as np
 import streamlit as st
 from data import *  # Data
 from graphs import *  # Graph Functions
-import base64
 from PIL import Image
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import pandas as pd
+import plotly.express as px
 from streamlit_option_menu import option_menu
 
 # Defining Functions
@@ -23,82 +22,36 @@ def nextpage():
 def restart():
     st.session_state.page = 0
 
-# Make predictions function
 def predict(data, amt):
     encoded_values = encoder.transform([data])
     encoded_data = np.insert(encoded_values, 0, amt)
-    print(encoded_data)
     prediction = model.predict([encoded_data])
     return prediction
-
-
 
 def display_graph(graph_type):
     if graph_type == 'fraud transaction':
         d = df["is_fraud"].value_counts().reset_index()
         d.columns = ['is_fraud', 'count']
-
-        # Create the pie chart with Plotly
-        fig = px.pie(d, values="count", names=['No', 'Yes'], hole=0.40, opacity=0.9,
-                     labels={"is_fraud": "Fraud", "count": "Number of Samples"})
-
-        # Update layout to adjust the title style and move the pie chart down
-        fig.update_layout(
-            title=dict(
-                text="Pie Chart of Fraudulent Transactions",
-                font=dict(size=22, color="black", family="Arial", weight="normal"),  # Normal weight (not bold)
-                x=0.5,  # Center the title horizontally
-                xanchor='center',
-                yanchor='top'
-            ),
-            margin=dict(t=100, b=40),  # Adds a top margin to the entire chart, b=40 for space at the bottom
-            title_y=0.95  # Keep the title in place near the top
-        )
-        
-        # Update trace properties
-        fig.update_traces(textposition="outside", textinfo="percent+label")
-        
-        # Display the Plotly figure in Streamlit
+        fig = px.pie(d, values="count", names=['No', 'Yes'], hole=0.40, opacity=0.9)
         st.plotly_chart(fig)
-
-
-
-
-    elif graph_type == 'gender analysis': 
+    elif graph_type == 'gender analysis':
         df_fraud = df[df['is_fraud'] == 1]
-        plt.figure(figsize=(5, 2))  # Shorten the height of the plot
-        sns.set()
-        plt.title('Gender Analysis of Fraud Persons', fontsize=10)
-        sns.countplot(x=df_fraud['gender'], color='tomato', width=0.3)  # Set bar width to 0.5 (default is 0.8)
-        plt.xlabel('Gender')
-        plt.ylabel('Count')
-        st.pyplot(plt)  # Display the seaborn figure in Streamlit
-
-        
+        plt.figure(figsize=(5, 2))
+        sns.countplot(x=df_fraud['gender'], color='tomato', width=0.3)
+        st.pyplot(plt)
     elif graph_type == 'category analysis':
         df_fraud = df[df['is_fraud'] == 1]
-        plt.figure(figsize=(10, 5))  # Adjust figure size to be shorter
-        sns.set()
-        plt.suptitle('Category Analysis of Fraud Persons')
+        plt.figure(figsize=(10, 5))
         sns.countplot(x='category', data=df_fraud, palette='winter')
-        plt.xlabel('Transaction Category')
-        plt.ylabel('Number of Transactions')
-        plt.xticks(rotation=45)
-        st.pyplot(plt)  # Display the seaborn figure in Streamlit
-
-
+        st.pyplot(plt)
     elif graph_type == 'amount distribution':
         df_fraud = df[df['is_fraud'] == 1]
         amounts = df_fraud['amt']
         bins = [0, 100, 500, 1000, 5000]
         labels = ['0-100', '101-500', '501-1000', '1001-5000']
         df_fraud['amount_range'] = pd.cut(amounts, bins=bins, labels=labels)
-        plt.figure(figsize=(8, 4))  # Shorten the height of the plot
-        sns.set(style="whitegrid")
+        plt.figure(figsize=(8, 4))
         sns.countplot(x='amount_range', data=df_fraud, palette='summer')
-        plt.title('Amount Distribution Across Different Ranges')
-        plt.xlabel('Amount Range')
-        plt.ylabel('Frequency')
         st.pyplot(plt)
 
 # Initialize session state
@@ -109,63 +62,96 @@ if "page" not in st.session_state:
 model = joblib.load('model.pkl')
 encoder = joblib.load('encoder_model.pkl')
 
-
-
 if st.session_state.page == 0:
-    # Inject CSS for the login page
+    # Code 1's Login Page
     st.markdown(
-        '''
+        """
         <style>
-            /* Style for the text input field */
-            div[data-baseweb="input"] {
-                # margin: auto;
-                max-width: 400px;
-                border: 2px solid #007bff; /* Blue border */
-                border-radius: 8px; /* Rounded corners */
-            }
-            div[data-baseweb="input"] > div {
-                padding: 10px 0 10px 10px; /* Padding inside the input */
-                background-color: transparent;
-            }
-            div[data-testid="stVerticalBlockBorderWrapper"] {
-                display: flex;
-                margin: 50px auto 0;
-                width: 460px;
-                border: 2px solid #007bff; /* Blue border */
-                padding: 30px;
-                border-radius: 8px; /* Rounded corners */
-                # background-color: #ffbb00;
-            }
-
-            /* Styling for submit button */
-            button {
-                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for button */
-                border-radius: 4px; /* Rounded button corners */
-                padding: 10px; /* Padding for the button */
-                # display: none;
-            }
+        .stApp {
+            background: linear-gradient(45deg, #FF0000, #FF7F00, #FF1493, #0000FF, #4B0082, #8B00FF);
+            background-size: 400% 400%;
+            animation: gradient 10s ease infinite;
+            color: white;
+        }
+        # @keyframes gradient {
+        #     0% { background-position: 0% 50%; }
+        #     50% { background-position: 100% 50%; }
+        #     100% { background-position: 0% 50%; }
+        # }
+        .header {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .subheading {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        /* Make text input labels white */
+        div[data-testid="stTextInput"] label {
+            color: white !important;
+            font-size: 16px;
+            font-weight: bold;
+        }
+            /* Style for the Login button */
+        div.stButton > button {
+            color: red !important; /* Text color red */
+            background-color: white !important; /* Optional: Change button background */
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 15px;
+            padding: 10px 20px;
+            border: 2px solid red; /* Optional: Add a border */
+        }
+        # div.stButton > button:hover {
+        #     background-color: red !important; /* Optional: Background changes on hover */
+        #     color: white !important; /* Optional: Text color changes on hover */
+        # }
         </style>
-        ''',
+        """,
         unsafe_allow_html=True
     )
 
-    # Wrapping the header and form inputs inside the box
-    # st.header(':blue[Login]')  # Centered login header
-    st.markdown('<div class="custom-div">', unsafe_allow_html=True)
-    st.markdown('<h1>Login</h1>', unsafe_allow_html=True)
-    username = st.text_input("**Username:**")  # Username input
-    password = st.text_input("**Password:**", type="password")  # Password input
-    st.button("**Submit**", on_click=nextpage)  # Submit button
-    st.markdown('</div>', unsafe_allow_html=True)
+    image_path = r"./ch_prev_ui.png"  # Update the path if necessary
 
-    # with st.form("login_form"):
-    #     username = st.text_input("Username")
-    #     password = st.text_input("Password", type="password")
-        
-    #     # Submit button
-    #     # st.button("**Submit**", on_click=nextpage)
-    #     st.form_submit_button("Submit",on_click=nextpage)
+    try:
+        logo = Image.open(image_path)
+        logo = logo.convert("RGBA")
+        data = logo.getdata()
+        new_data = [
+            (255, 255, 255, 0) if item[0] in list(range(200, 256)) and item[1] in list(range(200, 256)) and item[2] in list(range(200, 256)) else item
+            for item in data
+        ]
+        logo.putdata(new_data)
 
+        col1, col2 = st.columns([1, 4])
+        with col1:
+            st.image(logo, width=150)
+            st.markdown("<div style='text-align: left; margin-left: -30px;'> </div>", unsafe_allow_html=True)
+        with col2:
+            st.markdown('<div class="header">Smart Defence for Your Funds</div>', unsafe_allow_html=True)
+            st.markdown('<div class="subheading">Why Choose Us?</div>', unsafe_allow_html=True)
+
+        left_col, right_col = st.columns(2)
+        with left_col:
+            st.markdown('<h3 style="color: white;">About Our App</h3>', unsafe_allow_html=True)
+            st.write(
+                "Many credit cards are lost, stolen, or expired. But these cards can still be used by others. "
+                "This app provides AI-powered immediate detection and prevention of fraudulent transactions, ensuring precision with minimal false positives."
+            )
+        with right_col:
+            st.markdown('<h3 style="color: white;">Login</h3>', unsafe_allow_html=True)
+            username = st.text_input("Username", key="login_username")
+            password = st.text_input("Password", type="password", key="login_password")
+            if st.button("Login"):
+                if username == "admin" and password == "123":
+                    st.session_state.page += 1
+                else:
+                    st.error("Invalid username or password")
+    except Exception as e:
+        st.error(f"Error loading the image: {e}")
 
 elif st.session_state.page == 1:
     page_bg_img = f'''
@@ -255,8 +241,6 @@ elif st.session_state.page == 1:
                     st.success('This Transaction is Safe.', icon="✅")
                 else:
                     st.error('This Transaction may be Fraudulent.', icon="⚠️")
-
-
     elif selected == "Analytics":
         st.header('Analytics', divider='rainbow')
         # Sample dataset (you can replace this with actual data)
