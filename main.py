@@ -12,7 +12,7 @@ import seaborn as sns
 import pandas as pd
 from streamlit_option_menu import option_menu
 
-# Defining Functions
+# Defining Functions..
 
 def nextpage():
     if username == "admin" and password == "123":
