@@ -12,7 +12,7 @@
 4) Install the requirements by using the following command.
     * pip install requirements.txt
 5) Run the project using the following command.
-    * streamlit run main.py
+    * streamlit run main.py --client.showSidebarNavigation=false
 6) Enter the following credentials. 
    * Username: admin
    * Password: 123
